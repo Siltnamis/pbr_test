@@ -42,7 +42,7 @@ void particleBufferCreate(ParticleBuffer* pbuffer, int pcount)
     glBufferData(GL_ARRAY_BUFFER, 
             blend_offset+sizeof(float)*MAX_PARTICLES,
             nullptr, GL_DYNAMIC_DRAW);
-    printf(" PARTICLE BUFFER SIZE: %lu\n", blend_offset+sizeof(float)*MAX_PARTICLES);
+//     printf(" PARTICLE BUFFER SIZE: %llu\n", blend_offset+sizeof(float)*MAX_PARTICLES);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     pbuffer->particle_count = pcount;

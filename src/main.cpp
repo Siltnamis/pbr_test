@@ -270,12 +270,12 @@ void initState()
 
 void createDBGScene(Scene* scene)
 {
-	mat4 model = mat4_rotationz(global_time*0.3f)*mat4_scale({0.51, 0.51, 0.51});
+	mat4 model = mat4_rotationz(global_time*0.3f)*mat4_scale({0.51f, 0.51f, 0.51f});
 	for(int i = 0; i < 20; ++i)
 	{
 		for(int j = 0; j < 20; ++j)
 		{
-			model.w.xyz = {-10.f + 0.55f*i, -10.f + 0.55f*j, 1.5};
+			model.w.xyz = {-10.f + 0.55f*i, -10.f + 0.55f*j, 1.5f};
 			// scene->push({Mesh_Cerberus, Material_Cerberus, Shader_PBR, model});
 			// scene->push({Mesh_Cube, Material_Bentsteel, Shader_PBR, model});
 		}
@@ -304,11 +304,11 @@ void draw()
 	renderer->materials[Material_test].roughness = 0.1;
 	renderer->materials[Material_test].metalic = 1.0;
 
-	renderer->materials[Material_Gold].albedo = {1.0, 0.766, 0.336};
+	renderer->materials[Material_Gold].albedo = {1.0f, 0.766f, 0.336f};
 	renderer->materials[Material_Gold].roughness = 0.2;
 	renderer->materials[Material_Gold].metalic = 1.0;
 
-	renderer->materials[Material_Silver].albedo = {0.972, 0.960, 0.915};
+	renderer->materials[Material_Silver].albedo = {0.972f, 0.960f, 0.915f};
 	renderer->materials[Material_Silver].roughness = 0.2;
 	renderer->materials[Material_Silver].metalic = 1.0;
 
@@ -336,7 +336,7 @@ void draw()
 	model_mat.w.xyz = {0, 2, 1};
 	scene.push({Mesh_Cube, Material_Solarpanel, shader, model_mat});
 
-	model_mat = mat4_rotationz(global_time*0.3f)*mat4_scale({0.01, 0.01, 0.01});
+	model_mat = mat4_rotationz(global_time*0.3f)*mat4_scale({0.01f, 0.01f, 0.01f});
 	model_mat.w.xyz = {1, -2, 1};
 	scene.push({Mesh_Cerberus, Material_Cerberus, shader, model_mat});
 	model_mat.w.xyz = {-3, -2, 1};
@@ -401,13 +401,13 @@ void draw()
 	if(input.isSet(Input::ShowProfiling))
 	{
 		char str[256] = {};
-		vec4 color = {0.63, 0.15, 0.63, 1.0};
-		sprintf(str, "GPU frame time: %ldus\n", renderer->last_frame_time/1000);
-		drawText(str, {10, 20}, 22, {0.63, 0.15, 0.63, 1.0});
-		sprintf(str, "CPU frame time: %ldus\n", (int64)(last_frame_time*1000000.f));
-		drawText(str, {10, 40}, 22, {0.63, 0.15, 0.63, 1.0});
+		vec4 color = {0.63f, 0.15f, 0.63f, 1.0f};
+		sprintf(str, "GPU frame time: %lldus\n", renderer->last_frame_time/1000);
+		drawText(str, {10, 20}, 22, {0.63f, 0.15f, 0.63f, 1.0f});
+		sprintf(str, "CPU frame time: %lldus\n", (int64)(last_frame_time*1000000.f));
+		drawText(str, {10, 40}, 22, {0.63f, 0.15f, 0.63f, 1.0f});
 		sprintf(str, "MSAA: %d\n", renderer->msaa_level);
-		drawText(str, {renderer->frame_buffer_w*0.8f, 20}, 22, {0.63, 0.15, 0.63, 1.0});
+		drawText(str, {renderer->frame_buffer_w*0.8f, 20}, 22, {0.63f, 0.15f, 0.63f, 1.0f});
 		sprintf(str, "Position: %.3fx %.3fy %.3fz    Direction: %.3fx %.3fy %.3fz   Speed: %.3f   Objects: %d", 
 			camera.position.x, camera.position.y, camera.position.z,
 			camera.look.x, camera.look.y, camera.look.z, move_speed, scene.object_count);

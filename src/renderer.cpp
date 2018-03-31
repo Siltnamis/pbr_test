@@ -660,7 +660,7 @@ static void drawUpVector(mat4 model, mat4 view_proj, vec4 color)
     //glDisable(GL_CULL_FACE);
     float scale = 0.05f;
     //mat4 m1 = mat4_scale(vec3{0.3, 0.3, 12}*scale);
-    mat4 m1 = mat4_scale(vec3{0.4, 0.4, 12}*scale);
+    mat4 m1 = mat4_scale(vec3{0.4f, 0.4f, 12}*scale);
     mat4 m1t = mat4_translation(vec3{0, 0, 0.5f});
     m1 = m1*m1t;
 
@@ -820,7 +820,7 @@ void drawSceneToShadowMap(Scene* scene)
     float near_plane = 0.10f;
     float far_plane = 10.0f;
     mat4 light_proj = mat4_ortho(-5.0f, 5.f, -5.f, 5.f, near_plane, far_plane);
-    vec3 pos = {0.9, -3, 3};
+    vec3 pos = {0.9f, -3, 3};
     // pos = {0.9, -3, 0.5};
     pos = -scene->lights.sun_light_direction*5.0;
     vec3 look = normalize(vec3{0, 0.0, 0});
