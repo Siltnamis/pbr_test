@@ -1,3 +1,7 @@
 .vscode
 .directory
 *.obj
+*.pdb
+*.dll
+*.exe
+*.ilk
