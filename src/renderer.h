@@ -64,6 +64,7 @@ enum Shader_ID
     Shader_PostProcessGamma,
     Shader_ShadowMap,
     Shader_Framebuffer,
+    Shader_Depthbuffer,
     Shader_Debug,
     Shader_MultiTexture,
     Shader_Particles,

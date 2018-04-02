@@ -78,7 +78,7 @@ static void setupShader(int shader_enum)
     else if (shader_enum == Shader_Text){
         renderer->shaders[shader_enum].addUniforms(2, "mvp_mat", "size");
     }
-    else if (shader_enum == Shader_Framebuffer)
+    else if (shader_enum == Shader_Framebuffer || shader_enum == Shader_Depthbuffer)
         renderer->shaders[shader_enum].addUniforms(1, "mvp_mat");
     else if (shader_enum == Shader_Light)
         renderer->shaders[shader_enum].addUniforms(2, "model_mat", "color");
@@ -335,6 +335,7 @@ int rendererInit(int width, int height)
         renderer->shader_file_names[Shader_Phong] = "shaders/phong.glsl";
         renderer->shader_file_names[Shader_ShadowMap] = "shaders/shadow_map.glsl";
         renderer->shader_file_names[Shader_Framebuffer] = "shaders/framebuffer.glsl";
+        renderer->shader_file_names[Shader_Depthbuffer] = "shaders/depthbuffer.glsl";
         renderer->shader_file_names[Shader_PBRUntextured] = "shaders/pbr_textureless.glsl";
         renderer->shader_file_names[Shader_MultiTexture] = "shaders/multitexture.glsl";
         renderer->shader_file_names[Shader_Particles] = "shaders/particles_aless.glsl";
@@ -853,6 +854,8 @@ void drawFramebuffer(int attachment, mat4 mvp_mat)
 {
     glDisable(GL_DEPTH_TEST);
     Shader* shader = &renderer->shaders[Shader_Framebuffer];
+    if(attachment == renderer->frame_buffer_shadow_dir_depth)
+        shader = &renderer->shaders[Shader_Depthbuffer];
     shader->use();
     shader->setUniform("mvp_mat", mvp_mat);
     texture2DBind(attachment);
