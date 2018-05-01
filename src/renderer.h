@@ -51,6 +51,7 @@ enum Mesh_Enum
     Mesh_Buddha,
     Mesh_Dragon,
     Mesh_Lucy,
+    Mesh_Panzer,
     Mesh_Max 
 };
 
@@ -72,6 +73,7 @@ enum Shader_ID
     Shader_Reflection,
     Shader_Text,
     Shader_Light,
+    Shader_Flare,
     Shader_Max
 };
 
@@ -99,6 +101,11 @@ enum Texture
     Texture_Solarpanel_Normal,
     Texture_Solarpanel_Roughness,
     Texture_Solarpanel_Metalic,
+
+    Texture_Lens_Flare0,
+    Texture_Lens_Flare1,
+    Texture_Lens_Flare2,
+    Texture_Lens_Flare3,
 
     Texture_Particle_Flame,
 
@@ -130,6 +137,7 @@ enum Material_Enum
     Material_Bentsteel,
     Material_Solarpanel,
     Material_Cerberus,
+    Material_Panzer,
     Material_Max
 };
 
@@ -191,6 +199,8 @@ struct Renderer
 
     Shader      shaders[Shader_Max];
     GLuint      textures[Texture_Max];
+    GLuint      flare_textures[9];
+    GLuint      flare_occlusion_q;
 
     //Mesh        grid;
     Mesh        meshes[Mesh_Max];
@@ -258,6 +268,7 @@ struct Renderer
 
     mat4        ortho;
     mat4        perspective;
+    vec4        light_screen_space;
 
     GLuint      ui_fbos[8];
     mat4        ui_fbo_mats[8];
@@ -277,3 +288,4 @@ void drawSceneToCubeMap(Scene* scene);
 void setCommonShaderVars(Renderer::CommonShaderVars* cvars);
 void drawFramebuffer(int attachment, mat4 mvp_mat = mat4_identity());
 void drawUIFramebuffer(int attachment, mat4 mvp_mat = mat4_identity());
+void drawLensFlare(Scene* scene);

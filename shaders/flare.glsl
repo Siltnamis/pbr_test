@@ -24,7 +24,7 @@ void main()
 {
 	uv = v_uvs[gl_VertexID];
 	vec2 pos = v_positions[gl_VertexID];
-	gl_Position = mvp_mat*vec4(pos, 0, 1);
+	gl_Position = mvp_mat*vec4(pos, 0.99999, 1);
 }
 
 
@@ -33,20 +33,16 @@ void main()
 
 in vec2 uv;
 layout(location = 0) out vec4 color;
+layout(location = 1) out vec4 bright_color;
 
-uniform sampler2D depthMap;
-
-float getLinearDepth()
-{
-    float z_near = 0.1;    
-    float z_far  = 10.0; 
-    float depth = texture2D(depthMap, uv).r;
-    return (2.0 * z_near) / (z_far + z_near - depth * (z_far - z_near));
-}
+uniform sampler2D textureMap;
+uniform float brightness;
 
 void main()
 {
-	float depth = getLinearDepth();
-	color = vec4(vec3(depth), 1);
-    color = vec4(vec3(texture2D(depthMap, uv).r), 1.0);
+    vec4 col = texture(textureMap, vec2(uv.s, 1.0 - uv.t));
+    col.a *= brightness;
+    color = col; 
+    // color.a = 0.01;
+    bright_color = col;
 }

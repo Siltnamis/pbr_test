@@ -122,10 +122,20 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-// float shadowCalc2(vec4 frag_lspace, vec3 normal)
-// {
-//     return textureProj(shadow_map2, frag_lspace);
-// }
+float shadowCalc2(vec4 frag_lspace, vec3 normal)
+{
+    float shadow = 1.0;
+    vec3 proj_coords = frag_lspace.xyz/frag_lspace.w;
+    float closest_depth = texture(shadow_map, proj_coords.xy).r;
+    float current_depth = proj_coords.z;
+    // float bias = 0.005*tan(acos(dot(normal, vec3(0.5, -5.0, 5.0))));
+    // shadow = current_depth - bias < closest_depth ? 1.0 : 0.0;
+    // shadow = current_depth - bias < closest_depth ? 1.0 : 0.1;
+    // shadow = closest_depth < current_depth - bias ? 0.1 : 1.0;
+    shadow = current_depth > closest_depth ? 1.0 : 0.0;
+
+    return shadow;
+}
 
 float shadowCalc(vec4 frag_lspace, vec3 normal)
 {
@@ -150,6 +160,8 @@ float shadowCalc(vec4 frag_lspace, vec3 normal)
 
     float shadow = 1.0;
     vec3 proj_coords = frag_lspace.xyz/frag_lspace.w;
+    if(proj_coords.z > 1.0)
+        return 1.0;
     proj_coords = proj_coords*0.5 + 0.5;
     for(int i = 0; i < 16; ++i)
     {
@@ -222,6 +234,7 @@ void main()
 
         float NdotL = max(dot(N, L), 0.0);
         Lo += (kD*albedo/PI + specular)*radiance*NdotL * shadowCalc(frag_pos_light_space, N);
+        // Lo += (kD*albedo/PI + specular)*radiance*NdotL * (1.0-shadowCalc2(frag_pos_light_space, N));
         //Lo += (kD*albedo/PI + specular)*radiance*NdotL;
     }
 

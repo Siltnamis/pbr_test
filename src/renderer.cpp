@@ -78,8 +78,9 @@ static void setupShader(int shader_enum)
     else if (shader_enum == Shader_Text){
         renderer->shaders[shader_enum].addUniforms(2, "mvp_mat", "size");
     }
-    else if (shader_enum == Shader_Framebuffer || shader_enum == Shader_Depthbuffer)
-        renderer->shaders[shader_enum].addUniforms(1, "mvp_mat");
+    else if (shader_enum == Shader_Framebuffer || shader_enum == Shader_Depthbuffer
+            || shader_enum == Shader_Flare)
+        renderer->shaders[shader_enum].addUniforms(2, "mvp_mat", "brightness");
     else if (shader_enum == Shader_Light)
         renderer->shaders[shader_enum].addUniforms(2, "model_mat", "color");
 }
@@ -116,6 +117,7 @@ int rendererInit(int width, int height)
         //glCullFace(GL_BACK);
         //glFrontFace(GL_CCW);
         GLCALL(glEnable(GL_DEPTH_TEST));
+        GLCALL(glDepthFunc(GL_LESS));
         //glDepthFunc(GL_LEQUAL);
         GLCALL(glEnable(GL_STENCIL_TEST));
         GLCALL(glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE));
@@ -124,6 +126,7 @@ int rendererInit(int width, int height)
         GLCALL(glEnable(GL_BLEND));
 
         GLCALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+        // GLCALL(glBlendFunc(GL_DST_COLOR, GL_ZERO));
         GLCALL(glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS));
     }
 
@@ -216,7 +219,7 @@ int rendererInit(int width, int height)
         GLCALL(glGenTextures(1, &renderer->fbo_bloom_texture));
         GLCALL(glBindFramebuffer(GL_FRAMEBUFFER, renderer->fbo_bloom));
         GLCALL(glBindTexture(GL_TEXTURE_2D, renderer->fbo_bloom_texture));
-        GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, nullptr));
+        GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr));
         GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
         GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
         GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
@@ -229,7 +232,7 @@ int rendererInit(int width, int height)
         GLCALL(glGenTextures(1, &renderer->fbo_light_scattering_texture));
         GLCALL(glBindFramebuffer(GL_FRAMEBUFFER, renderer->fbo_light_scattering));
         GLCALL(glBindTexture(GL_TEXTURE_2D, renderer->fbo_light_scattering_texture));
-        GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, nullptr));
+        GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr));
         GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
         GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
         GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
@@ -242,7 +245,7 @@ int rendererInit(int width, int height)
         GLCALL(glGenTextures(1, &renderer->fbo_tmp_texture));
         GLCALL(glBindFramebuffer(GL_FRAMEBUFFER, renderer->fbo_tmp));
         GLCALL(glBindTexture(GL_TEXTURE_2D, renderer->fbo_tmp_texture));
-        GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, nullptr));
+        GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr));
         GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
         GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
         GLCALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 
@@ -262,8 +265,10 @@ int rendererInit(int width, int height)
             GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        vec4 border_color = {1.f, 1.f, 1.f, 1.f};
+        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border_color.e);
         // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
         // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 
@@ -326,6 +331,7 @@ int rendererInit(int width, int height)
         GLCALL(glBeginQuery(GL_TIME_ELAPSED, renderer->query_id[1]));
         GLCALL(glEndQuery(GL_TIME_ELAPSED));
     }
+    GLCALL(glGenQueries(1, &renderer->flare_occlusion_q));
 
 
     {//setup shader stuff
@@ -344,15 +350,16 @@ int rendererInit(int width, int height)
         renderer->shader_file_names[Shader_Debug] = "shaders/debug.glsl";
         renderer->shader_file_names[Shader_Text] = "shaders/text.glsl";
         renderer->shader_file_names[Shader_Light] = "shaders/light.glsl";
+        renderer->shader_file_names[Shader_Flare] = "shaders/flare.glsl";
         checkShaderReload2();
     }
 
     {//load meshes
         MeshData mesh_data;
         //generateFlatGrid(&mesh_data, 10, 10, 5, 5);
-        float x = 4;
+        float x = 8;
         generatePlane(&mesh_data, {-x, x, 0}, {-x, -x, 0},
-                {x, -x, 0}, {x, x, 0}, 8.f);
+                {x, -x, 0}, {x, x, 0}, 16.f);
         loadMesh(&renderer->meshes[Mesh_Grid], &mesh_data);
         freeMeshData(&mesh_data);
         
@@ -414,6 +421,10 @@ int rendererInit(int width, int height)
         loadFromFile(&mesh_data, "assets/dragon.avmesh");
         loadMesh(&renderer->meshes[Mesh_Dragon], &mesh_data);
         freeMeshData(&mesh_data);
+
+        loadFromFile(&mesh_data, "assets/panzer.avmesh");
+        loadMesh(&renderer->meshes[Mesh_Panzer], &mesh_data);
+        freeMeshData(&mesh_data);
         // generateSphere(&mesh_data, 32, 32, 1.f);
         // loadMesh(&renderer->meshes[Mesh_Sphere], &mesh_data);
         //freeMeshData(&mesh_data);
@@ -448,6 +459,10 @@ int rendererInit(int width, int height)
         "assets/cerberus/cerberus_a.tga", "assets/cerberus/cerberus_n.tga",
         "assets/cerberus/cerberus_r.tga", "assets/cerberus/cerberus_m.tga");
 
+    loadMaterial(&renderer->materials[Material_Panzer],
+        "assets/panzer/panzer_a.tga", "assets/panzer/panzer_n.tga",
+        "assets/bentsteel_roughness.tga", "assets/panzer/panzer_m.tga");
+
 
     {//texture load stuff
         const char* skybox_texture_files[6] = {
@@ -470,6 +485,16 @@ int rendererInit(int width, int height)
 
         renderer->textures[Texture_White] = texture2DLoadWhiteTexture();
         renderer->textures[Texture_Black] = texture2DLoadBlackTexture();
+
+        renderer->flare_textures[0] = texture2DLoad("assets/lensflare/tex1.png");
+        renderer->flare_textures[1] = texture2DLoad("assets/lensflare/tex2.png");
+        renderer->flare_textures[2] = texture2DLoad("assets/lensflare/tex3.png");
+        renderer->flare_textures[3] = texture2DLoad("assets/lensflare/tex4.png");
+        renderer->flare_textures[4] = texture2DLoad("assets/lensflare/tex5.png");
+        renderer->flare_textures[5] = texture2DLoad("assets/lensflare/tex6.png");
+        renderer->flare_textures[6] = texture2DLoad("assets/lensflare/tex7.png");
+        renderer->flare_textures[7] = texture2DLoad("assets/lensflare/tex8.png");
+        renderer->flare_textures[8] = texture2DLoad("assets/lensflare/tex9.png");
         // renderer->textures[Texture_Particle_Flame] = texture2DLoad("assets/fire.tga");
     }
 
@@ -776,6 +801,7 @@ void drawScene(Scene* scene)
     light_screen_space.xyz /= light_screen_space.w;
     light_screen_space.xy += {1, 1};
     light_screen_space.xy *= 0.5;
+    renderer->light_screen_space = light_screen_space;
     // light_screen_space.y = 1-light_screen_space.y;
     renderer->shaders[Shader_PostProcessGamma].use();
     renderer->shaders[Shader_PostProcessGamma].setUniform("light_screen_space", light_screen_space.xyz);
@@ -786,6 +812,8 @@ void drawScene(Scene* scene)
     {
         drawMesh(obj->model, obj->material, obj->shader, obj->model_mat, &scene->lights);
     }
+
+    drawLensFlare(scene);
 }
 
 void drawSceneDebug(Scene* scene)
@@ -819,11 +847,12 @@ void drawSceneToShadowMap(Scene* scene)
     //draw scene from sun light perspective
     //do not support pointlight shadows yet.
     float near_plane = 0.10f;
-    float far_plane = 10.0f;
+    near_plane = 1.0f;
+    float far_plane = 16.0f;
     mat4 light_proj = mat4_ortho(-5.0f, 5.f, -5.f, 5.f, near_plane, far_plane);
     vec3 pos = {0.9f, -3, 3};
     // pos = {0.9, -3, 0.5};
-    pos = -scene->lights.sun_light_direction*5.0;
+    pos = -normalize(scene->lights.sun_light_direction)*6.0;
     vec3 look = normalize(vec3{0, 0.0, 0});
     mat4 light_view = look_at(pos, look, {0, 0, 1});
     mat4 light_space_mat = light_proj*light_view;
@@ -837,7 +866,7 @@ void drawSceneToShadowMap(Scene* scene)
     glViewport(0, 0, renderer->shadow_buffer_w, renderer->shadow_buffer_h);
     glBindFramebuffer(GL_FRAMEBUFFER, renderer->frame_buffer_shadow_dir);
     glClear(GL_DEPTH_BUFFER_BIT);
-    //glCullFace(GL_FRONT);
+    // glCullFace(GL_FRONT);
     for(DrawItem* obj = scene->objects; obj != &scene->objects[scene->object_count]; ++obj)
     {
         glBindVertexArray(renderer->meshes[obj->model].vao);
@@ -868,6 +897,61 @@ void drawUIFramebuffer(int attachment, mat4 mvp_mat)
     renderer->ui_fbos[renderer->ui_fbo_count] = attachment;
     renderer->ui_fbo_mats[renderer->ui_fbo_count] = mvp_mat;
     ++renderer->ui_fbo_count;
+}
+
+void drawLensFlare(Scene* scene)
+{
+    // calc flare positions
+    // draw flare textures
+    // pro tip: use oclusion queries 
+    // draw flares.
+    vec2 lsp = renderer->light_screen_space.xy;
+    lsp *= 2;
+    lsp -= {1, 1};
+    vec2 light_to_center = vec2{0, 0} - lsp;
+    mat4 m = mat4_scale(vec3{0.09f, 0.09f, 1.f});
+    m.w.xyz = {lsp.x+0.01f, lsp.y-0.01f, 0};
+    int passed_samples = 0;
+    GLuint avail;
+    glGetQueryObjectuiv(renderer->flare_occlusion_q, GL_QUERY_RESULT_AVAILABLE, &avail);
+    if (avail == GL_TRUE){
+        glGetQueryObjectiv(renderer->flare_occlusion_q, GL_QUERY_RESULT, &passed_samples);
+    }
+    glBeginQuery(GL_SAMPLES_PASSED, renderer->flare_occlusion_q);
+    Shader* oshader = &renderer->shaders[Shader_Flare];
+    oshader->use();
+    oshader->setUniform("mvp_mat", m);
+    oshader->setUniform("brightness", 0.f);
+    texture2DBind(renderer->textures[Texture_White]);
+    GLCALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+    glEndQuery(GL_SAMPLES_PASSED);
+
+    float slen = length(light_to_center);
+    vec4 flare_positions[9] = {};
+    for(int i = 0; i < 9; ++i)
+        flare_positions[i].xy = lsp + ((i+1)*slen/2.0)*normalize(light_to_center);
+    
+    Shader* shader = &renderer->shaders[Shader_Flare];
+    shader->use();
+    mat4 mvp = mat4_scale(0.1f);
+    float scales[9] = {
+        0.01f, 0.1f, 0.02f, 0.15f, 0.01f, 0.1f, 0.03f, 0.2f, 0.07f
+    };
+    float sun_visibility = passed_samples/(renderer->window_h*renderer->window_w*m.m00*m.m11*renderer->msaa_level);
+
+    GLCALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE));
+    GLCALL(glDepthMask(GL_FALSE));
+    for(int i = 0; i < 9; ++i){
+        mvp = mat4_scale(scales[i]);
+        mvp.w.xy = flare_positions[i].xy;
+        texture2DBind(renderer->flare_textures[i]);
+        shader->setUniform("mvp_mat", mvp);
+        shader->setUniform("brightness", sun_visibility*(0.40f-abs(length(flare_positions[i].xy))/5.0f));
+        GLCALL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+    }
+
+    GLCALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+    GLCALL(glDepthMask(GL_TRUE));
 }
 
 void drawSkybox(int texture, Camera* camera)

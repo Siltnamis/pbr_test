@@ -12,10 +12,10 @@
 #ifdef NDEBUG
 	#define GLCALL(x) x;	
 #else
-	#define GLCALL(x) x;	
-	// #define GLCALL(x) GLClearError();\
-		// x;\
-		// if(!GLCheckError(#x, __FILE__, __LINE__)) asm("int $3");
+	// #define GLCALL(x) x;	
+	#define GLCALL(x) GLClearError();\
+		x;\
+		if(!GLCheckError(#x, __FILE__, __LINE__)) asm("int $3");
 		//assert(GLCheckError(#x, __FILE__, __LINE__))
 #endif
 

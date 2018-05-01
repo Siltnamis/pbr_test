@@ -318,7 +318,8 @@ void draw()
 	Scene scene;
 	scene.camera = &camera;
 
-	scene.push({Mesh_Cube, Material_Rooftile, shader, model_mat});
+	// model_mat.w.xyz = {0.0, 0.0, -1};
+	// scene.push({Mesh_Cube, Material_Rooftile, shader, model_mat});
 
 	model_mat = mat4_identity();
 	model_mat.w.xyz = {0, 0, -1};
@@ -336,7 +337,7 @@ void draw()
 	model_mat.w.xyz = {0, 2, 1};
 	scene.push({Mesh_Cube, Material_Solarpanel, shader, model_mat});
 
-	model_mat = mat4_rotationz(global_time*0.3f)*mat4_scale({0.01f, 0.01f, 0.01f});
+	model_mat = mat4_rotationz(global_time*0.15f)*mat4_scale({0.01f, 0.01f, 0.01f});
 	model_mat.w.xyz = {1, -2, 1};
 	scene.push({Mesh_Cerberus, Material_Cerberus, shader, model_mat});
 	model_mat.w.xyz = {-3, -2, 1};
@@ -348,7 +349,7 @@ void draw()
 	model_mat = mat4_translation({10, -100, 100})*mat4_scale(0.1f);
 	scene.push({Mesh_Sphere, Material_Solarpanel, shader, model_mat});
 
-	model_mat = mat4_translation({0, 0, 0})*mat4_scale(1.0f);
+	model_mat = mat4_translation({0, 0, -0.5})*mat4_scale(1.0f);
 	scene.push({Mesh_Cube, Material_Rooftile, Shader_PBR, model_mat});
 
 	model_mat = mat4_translation({-3, -1, 1})*mat4_scale(0.1f);
@@ -357,19 +358,19 @@ void draw()
 	model_mat = mat4_translation({1.5, -3.0, 0.25})*mat4_scale(0.5f);
 	scene.push({Mesh_Sphere, Material_Bentsteel, shader, model_mat});
 
-	model_mat = mat4_translation({0, 0, 3.0})*mat4_rotationz(-global_time*0.3f)*mat4_scale(2.0);
-	scene.push({Mesh_Buddha, Material_Gold, Shader_Reflection, model_mat});
+	model_mat = mat4_translation({0, 0, 3.0})*mat4_rotationz(-global_time*0.3f)*mat4_scale(1.0);
+	// scene.push({Mesh_Buddha, Material_Gold, Shader_Reflection, model_mat});
 
-	model_mat = mat4_translation({-3.5, -3.5, -1.0})*mat4_rotationz(-global_time*0.3f)*mat4_scale(2.0);
-	scene.push({Mesh_Buddha, Material_Gold, Shader_PBRUntextured, model_mat});
-
-	model_mat = mat4_translation({3.5, -3.5, -1.0})*mat4_rotationz(global_time*0.3f)*mat4_scale(2.0);
-	scene.push({Mesh_Buddha, Material_Silver, Shader_PBRUntextured, model_mat});
-
-	model_mat = mat4_translation({-3.5, 3.5, -1.0})*mat4_rotationz(-global_time*0.3f)*mat4_scale(2.0);
+	model_mat = mat4_translation({-3.5, -3.5, -1.0})*mat4_rotationz(-global_time*0.3f)*mat4_scale(1.0);
 	scene.push({Mesh_Dragon, Material_Gold, Shader_PBRUntextured, model_mat});
 
-	model_mat = mat4_translation({3.5, 3.5, -1.0})*mat4_rotationz(global_time*0.3f)*mat4_scale(2.0);
+	model_mat = mat4_translation({3.5, -3.5, -1.0})*mat4_rotationz(global_time*0.3f)*mat4_scale(1.0);
+	scene.push({Mesh_Buddha, Material_Silver, Shader_PBRUntextured, model_mat});
+
+	model_mat = mat4_translation({-3.5, 3.5, -1.0})*mat4_rotationz(-global_time*0.3f)*mat4_scale(1.0);
+	scene.push({Mesh_Buddha, Material_Gold, Shader_PBRUntextured, model_mat});
+
+	model_mat = mat4_translation({3.5, 3.5, -1.0})*mat4_rotationz(global_time*0.3f)*mat4_scale(1.0);
 	scene.push({Mesh_Dragon, Material_Silver, Shader_PBRUntextured, model_mat});
 	// model_mat = mat4_translation({-0.5, -1.5, 0.5})*mat4_scale(1.0f);
 	// scene.push({Mesh_Sphere, Material_Bentsteel, Shader_PBR, model_mat});
@@ -388,6 +389,7 @@ void draw()
 	scene.lights.sun_light_color = {1, 1, 1};
 	scene.lights.sun_light_direction = normalize(vec3{-36, 100, -37});
 
+	drawSkybox(Texture_Skybox, &camera);
 	//draw shadowmap
 	drawSceneToShadowMap(&scene);
 	
@@ -396,7 +398,7 @@ void draw()
 	if(input.isSet(Input::DrawDebug))
 		drawSceneDebug(&scene);
 
-	drawSkybox(Texture_Skybox, &camera);
+	// drawSkybox(Texture_Skybox, &camera);
 
 	if(input.isSet(Input::ShowProfiling))
 	{

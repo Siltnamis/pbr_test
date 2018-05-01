@@ -56,14 +56,8 @@ vec4 scattering()
     // illumination_decay = 1.0;
 
     vec2 luv = uv;
-    // luv.y = -uv.y;
     vec2 lsp = light_screen_space.xy;
-    // lsp += vec2(1.0, 1.0);
-    // lsp *= 0.5;
-    // lsp.y = 1.0 - lsp.y;
     vec2 uv_delta = luv - lsp;
-    // uv_delta = luv - vec2(0.0, 0.0);
-    // uv_delta = luv;
     uv_delta *= 1.0f/NUM_SAMPLES * density;
     vec3 color = texture(light_map, luv).rgb;
     for(int i = 0; i < NUM_SAMPLES; ++i)
@@ -75,7 +69,6 @@ vec4 scattering()
        illumination_decay *= decay;
     }
     vec3 rcolor = texture(textureMap, uv).rgb;
-    // return vec4(color * exposure2, 1.0) + vec4(rcolor*1.1, 1.0);
     return vec4(color * exposure2, 1.0);
 }
 
@@ -94,7 +87,7 @@ void main()
         vec3 hdrcolor = texture(textureMap, uv).rgb;
         // hdrcolor = texture(bloom_map, uv).rgb;
         //if(use_bloom)
-        if(true)
+        if(false)
         {
         vec3 bloom_color = texture(bloom_map, uv).rgb;
         hdrcolor += bloom_color*0.85 + scattering().rgb;
