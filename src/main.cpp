@@ -370,11 +370,13 @@ void draw()
 	model_mat = mat4_translation({-3.5, 3.5, -1.0})*mat4_rotationz(-global_time*0.3f)*mat4_scale(1.0);
 	scene.push({Mesh_Buddha, Material_Gold, Shader_PBRUntextured, model_mat});
 
-	model_mat = mat4_translation({3.5, 3.5, -1.0})*mat4_rotationz(global_time*0.3f)*mat4_scale(1.0);
+	model_mat = mat4_translation({3.5, 3.5, -1.0})*mat4_rotationz(global_time*0.0f)*mat4_scale(1.0);
 	scene.push({Mesh_Dragon, Material_Silver, Shader_PBRUntextured, model_mat});
 	// model_mat = mat4_translation({-0.5, -1.5, 0.5})*mat4_scale(1.0f);
 	// scene.push({Mesh_Sphere, Material_Bentsteel, Shader_PBR, model_mat});
 
+	// model_mat = mat4_translation({3.5, 3.5, -1.0})*mat4_rotationz(global_time*0.3f)*mat4_scale(1.0);
+	// scene.push({Mesh_Dragon, Material_Silver, Shader_PBRUntextured, model_mat});
 
 	model_mat = mat4_translation({-1.5, -2.5, 0.5})*mat4_scale(0.5f);
 	scene.push({Mesh_Sphere, Material_test, Shader_Reflection, model_mat});

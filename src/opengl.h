@@ -15,7 +15,8 @@
 	// #define GLCALL(x) x;	
 	#define GLCALL(x) GLClearError();\
 		x;\
-		if(!GLCheckError(#x, __FILE__, __LINE__)) asm("int $3");
+
+		// if(!GLCheckError(#x, __FILE__, __LINE__)) asm("int $3");
 		//assert(GLCheckError(#x, __FILE__, __LINE__))
 #endif
 
