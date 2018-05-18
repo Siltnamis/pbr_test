@@ -87,7 +87,7 @@ void main()
         vec3 hdrcolor = texture(textureMap, uv).rgb;
         // hdrcolor = texture(bloom_map, uv).rgb;
         //if(use_bloom)
-        if(false)
+        if(true)
         {
         vec3 bloom_color = texture(bloom_map, uv).rgb;
         hdrcolor += bloom_color*0.85 + scattering().rgb;
