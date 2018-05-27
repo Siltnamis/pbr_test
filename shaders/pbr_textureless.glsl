@@ -186,8 +186,8 @@ void main()
         vec3 specular = nominator/denominator;
 
         float NdotL = max(dot(N, L), 0.0);
-        //Lo += (kD*albedo/PI + specular)*radiance*NdotL * shadowCalc(frag_pos_light_space, N);
-        Lo += (kD*albedo/PI + specular)*radiance*NdotL;
+        Lo += (kD*albedo/PI + specular)*radiance*NdotL * shadowCalc(frag_pos_light_space, N);
+        // Lo += (kD*albedo/PI + specular)*radiance*NdotL;
     }
 
     float ao = 1.0;
