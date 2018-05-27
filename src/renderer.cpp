@@ -905,6 +905,8 @@ void drawLensFlare(Scene* scene)
     // draw flare textures
     // pro tip: use oclusion queries 
     // draw flares.
+    if(renderer->light_screen_space.w < 1)
+        return;
     vec2 lsp = renderer->light_screen_space.xy;
     lsp *= 2;
     lsp -= {1, 1};
