@@ -813,6 +813,8 @@ void drawSceneDebug(Scene* scene)
 {
     for(DrawItem* obj = scene->objects; obj != &scene->objects[scene->object_count]; ++obj)
     {
+        if (obj->model == Mesh_Buddha || obj->model == Mesh_Dragon)
+            continue;
         drawMesh(obj->model, obj->material, Shader_Debug, obj->model_mat, &scene->lights);
     }
 }
