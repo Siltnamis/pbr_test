@@ -21,12 +21,13 @@ static void processaiMesh(MeshData* data, aiMesh* aimesh)
         vertex->normal = { aimesh->mNormals[i].x,
                            aimesh->mNormals[i].y,
                            aimesh->mNormals[i].z };
-        if(aimesh->HasTextureCoords(i))
+        if(aimesh->HasTextureCoords(0))
         {
         vertex->tangent = { aimesh->mTangents[i].x,
                             aimesh->mTangents[i].y,
                             aimesh->mTangents[i].z };
         vertex->uv = { aimesh->mTextureCoords[0][i].x, aimesh->mTextureCoords[0][i].y };
+        printf("%.4f %.4f\n", vertex->uv.x, vertex->uv.y);
         }else{
             vertex->tangent = {};
             vertex->uv = {};
