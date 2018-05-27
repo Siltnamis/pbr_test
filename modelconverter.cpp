@@ -27,7 +27,6 @@ static void processaiMesh(MeshData* data, aiMesh* aimesh)
                             aimesh->mTangents[i].y,
                             aimesh->mTangents[i].z };
         vertex->uv = { aimesh->mTextureCoords[0][i].x, aimesh->mTextureCoords[0][i].y };
-        printf("%.4f %.4f\n", vertex->uv.x, vertex->uv.y);
         }else{
             vertex->tangent = {};
             vertex->uv = {};
