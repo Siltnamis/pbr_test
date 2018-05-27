@@ -422,13 +422,6 @@ int rendererInit(int width, int height)
         loadMesh(&renderer->meshes[Mesh_Dragon], &mesh_data);
         freeMeshData(&mesh_data);
 
-        loadFromFile(&mesh_data, "assets/panzer.avmesh");
-        loadMesh(&renderer->meshes[Mesh_Panzer], &mesh_data);
-        freeMeshData(&mesh_data);
-        // generateSphere(&mesh_data, 32, 32, 1.f);
-        // loadMesh(&renderer->meshes[Mesh_Sphere], &mesh_data);
-        //freeMeshData(&mesh_data);
-
         MeshData2D mesh_data2d;
         generateQuad(&mesh_data2d, 1.f);
         loadMesh(&renderer->meshes[Mesh_Quad], &mesh_data2d);

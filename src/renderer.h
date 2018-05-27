@@ -51,7 +51,6 @@ enum Mesh_Enum
     Mesh_Buddha,
     Mesh_Dragon,
     Mesh_Lucy,
-    Mesh_Panzer,
     Mesh_Max 
 };
 
