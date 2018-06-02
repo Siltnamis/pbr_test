@@ -178,6 +178,10 @@ void handleEvents()
                     else
                         SDL_SetRelativeMouseMode(SDL_FALSE);
                 }
+
+                else if(e.key.repeat == 0 && e.key.keysym.sym == SDLK_ESCAPE){
+                   	SDL_SetRelativeMouseMode(SDL_FALSE);
+				}
             }break;
 
             case SDL_KEYUP:
@@ -255,6 +259,7 @@ void handleEvents()
 }
 void initState()
 {
+    SDL_SetRelativeMouseMode(SDL_TRUE);
 	int status = rendererInit(width, height);
 	assert(status == 0);
 
@@ -341,7 +346,7 @@ void draw()
 	model_mat.w.xyz = {1, -2, 1};
 	scene.push({Mesh_Cerberus, Material_Cerberus, shader, model_mat});
 	model_mat.w.xyz = {-3, -2, 1};
-	scene.push({Mesh_Cerberus, Material_Cerberus, Shader_Reflection, model_mat});
+	// scene.push({Mesh_Cerberus, Material_Cerberus, Shader_Reflection, model_mat});
 
 	model_mat = mat4_translation({-1, -2, -0.5})*mat4_rotationx(global_time*0.01f);
 	scene.push({Mesh_Sphere, Material_Solarpanel, shader, model_mat});
@@ -356,7 +361,8 @@ void draw()
 	scene.push({Mesh_Sphere, Material_Solarpanel, shader, model_mat});
 
 	model_mat = mat4_translation({1.5, -3.0, 0.25})*mat4_scale(0.5f);
-	scene.push({Mesh_Sphere, Material_Bentsteel, shader, model_mat});
+	scene.push({Mesh_Sphere, Material_Cobblestone, shader, model_mat});
+	// scene.push({Mesh_Sphere, Material_Bentsteel, Shader_PBRUntextured, model_mat});
 
 	model_mat = mat4_translation({0, 0, 3.0})*mat4_rotationz(-global_time*0.3f)*mat4_scale(1.0);
 	// scene.push({Mesh_Buddha, Material_Gold, Shader_Reflection, model_mat});
@@ -439,8 +445,10 @@ void updateState()
 {
 	if(input.isSet(Input::IncreaseAnimSpeed))
 		move_speed += 0.1;
-	if(input.isSet(Input::DecreaseAnimSpeed))
+	if(input.isSet(Input::DecreaseAnimSpeed)){
 		move_speed -= 0.1;
+		if(move_speed < 0) move_speed = 0;
+	}
 	if(input.isSet(Input::MoveForward)){
         camera.moveForward(move_speed*dt);
     }
@@ -511,6 +519,8 @@ int main(int argc, char** argv)
 				SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	context = SDL_GL_CreateContext(window);
 	SDL_GL_MakeCurrent(window, context);
+	if(checkArg(argc, argv, "--fs") != -1)
+		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
 	if(!gladLoadGLLoader(SDL_GL_GetProcAddress)){
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Init error",
