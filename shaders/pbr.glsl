@@ -223,6 +223,7 @@ void main()
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
         vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+        // F = F0 + (1.0 - F0) * pow(1.0 - abs(dot(N, -V)), 5.0); 
 
         vec3 kS = F;
         vec3 kD = vec3(1.0) - kS;

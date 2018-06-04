@@ -306,8 +306,9 @@ void draw()
 	int shader = Shader_PBR;
 
 	renderer->materials[Material_test].albedo = {3, 4.5, 0.5};
-	renderer->materials[Material_test].roughness = 0.1;
-	renderer->materials[Material_test].metalic = 1.0;
+	renderer->materials[Material_test].albedo = {0, 0.0, 0.8};
+	renderer->materials[Material_test].roughness = 0.501;
+	renderer->materials[Material_test].metalic = 0.0;
 
 	renderer->materials[Material_Gold].albedo = {1.0f, 0.766f, 0.336f};
 	renderer->materials[Material_Gold].roughness = 0.2;
@@ -360,9 +361,12 @@ void draw()
 	model_mat = mat4_translation({-3, -1, 1})*mat4_scale(0.1f);
 	scene.push({Mesh_Sphere, Material_Solarpanel, shader, model_mat});
 
-	model_mat = mat4_translation({1.5, -3.0, 0.25})*mat4_scale(0.5f);
-	scene.push({Mesh_Sphere, Material_Cobblestone, shader, model_mat});
-	// scene.push({Mesh_Sphere, Material_Bentsteel, Shader_PBRUntextured, model_mat});
+	model_mat = mat4_translation({0.0, -3.0, 0.25})*mat4_rotationz(global_time*0.3f)*mat4_scale(0.5f);
+	// scene.push({Mesh_Sphere, Material_Cobblestone, shader, model_mat});
+	scene.push({Mesh_Sphere, Material_test, Shader_PBRUntextured, model_mat});
+
+	model_mat = mat4_translation({1.5, -3.0, 0.25})*mat4_rotationz(global_time*0.3f)*mat4_scale(0.5f);
+	scene.push({Mesh_Sphere, Material_Bentsteel, Shader_PBR, model_mat});
 
 	model_mat = mat4_translation({0, 0, 3.0})*mat4_rotationz(-global_time*0.3f)*mat4_scale(1.0);
 	// scene.push({Mesh_Buddha, Material_Gold, Shader_Reflection, model_mat});

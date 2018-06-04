@@ -72,7 +72,9 @@ layout(location = 2) out vec4 lscattering;
 
 uniform vec3 albedo;
 uniform float roughness;
+// float roughness = 0.1;
 uniform float metalic;
+// float metalic = 1.0;
 layout(binding = 4) uniform sampler2D shadow_map;
 
 uniform vec3 light_colors[MAX_LIGHTS];
@@ -154,8 +156,12 @@ void main()
 
     vec3 V = normalize(to_camera);
 
+    // float ior = 1.0;
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metalic);
+    // F0 = vec3(abs((1.0-ior)/(1.0+ior)));
+    // F0 = F0 * F0;
+    // F0 = mix(F0, albedo, metalic);
 
     vec3 Lo = vec3(0.0);
 
@@ -176,6 +182,7 @@ void main()
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
         vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+        F = F0 + (1.0 - F0) * pow(1.0 - abs(dot(N, -V)), 5.0); 
 
         vec3 kS = F;
         vec3 kD = vec3(1.0) - kS;
@@ -186,13 +193,30 @@ void main()
         vec3 specular = nominator/denominator;
 
         float NdotL = max(dot(N, L), 0.0);
+        // Lo += (kD*albedo/PI + specular)*radiance*NdotL * shadowCalc(frag_pos_light_space, N);
+        // Lo = L;
+        // F = F0 + pow(1-abs(dot(N, -V)), 5) * (1-F0);
+        // return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+        // Lo = vec3(G);
+        // Lo = vec3(F*G);
+        // Lo = vec3(pow(F, vec3(1.5))* G);
+        // Lo = vec3((NDF * F)*G);
+        // // Lo = pow(F, 1.0);
+        // Lo = specular + pow(F, vec3(5.0));
+        // // Lo = H;
+        // Lo += specular;
+        // Lo += F;
         Lo += (kD*albedo/PI + specular)*radiance*NdotL * shadowCalc(frag_pos_light_space, N);
+        // Lo = (kD*albedo/PI + specular)*radiance*NdotL * shadowCalc(frag_pos_light_space, N);
         // Lo += (kD*albedo/PI + specular)*radiance*NdotL;
+        // Lo = vec3(NDF);
+        // break;
     }
 
     float ao = 1.0;
     vec3 ambient = vec3(0.03)*albedo*ao;
     color = vec4(ambient + Lo, 1.0);
+    // color = vec4(Lo, 1.0);
     float brightness = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722))+-0.1;
     if(brightness > 1.0)
         bright_color = vec4(color.rgb, 1.0);
